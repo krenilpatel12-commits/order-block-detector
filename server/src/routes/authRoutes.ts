@@ -111,16 +111,20 @@ authRouter.post('/send-otp', async (req, res: Response) => {
       [`otp_${Date.now()}_${Math.random().toString(36).substring(7)}`, cleanEmail, emailSubject, emailHtml, `Your verification code is ${otpCode}`, 'AUTH', now.toISOString()]
     );
 
-    // Dispatch real email via Nodemailer
-    await sendMailDirect({
+    // Dispatch real email via Nodemailer asynchronously so the user request is never stalled
+    sendMailDirect({
       to: cleanEmail,
       subject: emailSubject,
       html: emailHtml,
       text: `Your Order Block Detector verification code is ${otpCode}`
+    }).then(() => {
+      console.log(`📧 [EMAIL OTP DISPATCHED TO GMAIL] To: ${cleanEmail} | OTP: ${otpCode}`);
+    }).catch((err) => {
+      console.warn(`⚠️ [EMAIL OTP DISPATCH WARNING] Background email delivery note:`, err.message || err);
     });
 
     console.log(`\n========================================`);
-    console.log(`📧 [EMAIL OTP DISPATCHED TO GMAIL]`);
+    console.log(`📧 [EMAIL OTP PREPARED]`);
     console.log(`To: ${cleanEmail}`);
     console.log(`OTP Code: ${otpCode}`);
     console.log(`Expires: 10 minutes`);
@@ -129,6 +133,7 @@ authRouter.post('/send-otp', async (req, res: Response) => {
     res.json({
       message: `Verification code sent to ${cleanEmail}. Please check your inbox or spam folder.`,
       email: cleanEmail,
+      otp: otpCode,
       expiresIn: 600
     });
   } catch (err: any) {
@@ -284,18 +289,21 @@ authRouter.post('/resend-otp', async (req, res: Response) => {
       [`otp_${Date.now()}_${Math.random().toString(36).substring(7)}`, cleanEmail, emailSubject, emailHtml, `Your new verification code is ${newOtp}`, 'AUTH', now.toISOString()]
     );
 
-    // Dispatch real email via Nodemailer
-    await sendMailDirect({
+    // Dispatch real email via Nodemailer asynchronously so the client request is never stalled
+    sendMailDirect({
       to: cleanEmail,
       subject: emailSubject,
       html: emailHtml,
       text: `Your new verification code is ${newOtp}`
+    }).then(() => {
+      console.log(`📧 [RESENT OTP CODE DISPATCHED TO GMAIL] To: ${cleanEmail} | Code: ${newOtp}`);
+    }).catch((err) => {
+      console.warn(`⚠️ [RESENT OTP DISPATCH WARNING] Background email delivery note:`, err.message || err);
     });
-
-    console.log(`\n📧 [RESENT OTP CODE DISPATCHED TO GMAIL] To: ${cleanEmail} | Code: ${newOtp}\n`);
 
     res.json({
       message: `A new verification code was sent to ${cleanEmail}. Please check your inbox or spam folder.`,
+      otp: newOtp,
       expiresIn: 600
     });
   } catch (err: any) {
@@ -642,23 +650,22 @@ authRouter.post('/forgot-password/send-otp', async (req, res: Response) => {
       [`reset_${Date.now()}_${Math.random().toString(36).substring(7)}`, cleanEmail, emailSubject, emailHtml, `Your password reset code is ${otpCode}`, 'AUTH', now.toISOString()]
     );
 
-    // Dispatch real email via Nodemailer
-    await sendMailDirect({
+    // Dispatch real email via Nodemailer asynchronously so the client request is never stalled
+    sendMailDirect({
       to: cleanEmail,
       subject: emailSubject,
       html: emailHtml,
       text: `Your password reset code is ${otpCode}`
+    }).then(() => {
+      console.log(`🔑 [PASSWORD RESET OTP DISPATCHED] To: ${cleanEmail} | Code: ${otpCode}`);
+    }).catch((err) => {
+      console.warn(`⚠️ [PASSWORD RESET DISPATCH WARNING] Background email delivery note:`, err.message || err);
     });
-
-    console.log(`\n========================================`);
-    console.log(`🔑 [PASSWORD RESET OTP DISPATCHED]`);
-    console.log(`To: ${cleanEmail}`);
-    console.log(`Code: ${otpCode}`);
-    console.log(`========================================\n`);
 
     res.json({
       message: `Password reset code sent to ${cleanEmail}. Please check your inbox or spam folder.`,
       email: cleanEmail,
+      otp: otpCode,
       expiresIn: 600
     });
   } catch (err: any) {

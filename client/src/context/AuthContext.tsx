@@ -17,7 +17,7 @@ interface AuthContextType {
   sendOtp: (name: string, email: string, password: string) => Promise<{ message: string; email: string; otp?: string; expiresIn: number; alreadyRegistered?: boolean; token?: string; user?: UserProfile }>;
   verifyOtp: (email: string, otp: string) => Promise<void>;
   resendOtp: (email: string) => Promise<{ message: string; otp?: string }>;
-  forgotPasswordSendOtp: (email: string) => Promise<{ message: string; email: string; expiresIn: number }>;
+  forgotPasswordSendOtp: (email: string) => Promise<{ message: string; email: string; expiresIn: number; otp?: string }>;
   forgotPasswordReset: (email: string, otp: string, newPassword: string) => Promise<void>;
   demoLogin: (mode: 'USER' | 'ADMIN') => Promise<void>;
   logout: () => void;

@@ -70,7 +70,7 @@ export const api = {
     return handleResponse(res);
   },
 
-  async forgotPasswordSendOtp(email: string): Promise<{ message: string; email: string; expiresIn: number }> {
+  async forgotPasswordSendOtp(email: string): Promise<{ message: string; email: string; expiresIn: number; otp?: string }> {
     const res = await fetch(`${API_BASE}/auth/forgot-password/send-otp`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

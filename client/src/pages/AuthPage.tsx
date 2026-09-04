@@ -123,6 +123,10 @@ export const AuthModal: React.FC<AuthPageProps> = ({ isOpen, onClose }) => {
         setResendTimer(60);
         setCanResend(false);
         setSuccessMsg(`Verification code dispatched to ${cleanEmail}`);
+        if (res.otp) {
+          const digits = res.otp.split('').slice(0, 6);
+          setOtpDigits(digits);
+        }
         setTimeout(() => {
           inputRefs.current[0]?.focus();
         }, 100);
@@ -154,11 +158,15 @@ export const AuthModal: React.FC<AuthPageProps> = ({ isOpen, onClose }) => {
     setLoading(true);
 
     try {
-      await forgotPasswordSendOtp(cleanEmail);
+      const res = await forgotPasswordSendOtp(cleanEmail);
       setMode('FORGOT_RESET');
       setResendTimer(60);
       setCanResend(false);
-      setOtpDigits(['', '', '', '', '', '']);
+      if (res.otp) {
+        setOtpDigits(res.otp.split('').slice(0, 6));
+      } else {
+        setOtpDigits(['', '', '', '', '', '']);
+      }
       setNewPassword('');
       setSuccessMsg(`Password reset code sent to ${cleanEmail}`);
       setTimeout(() => {
@@ -271,11 +279,17 @@ export const AuthModal: React.FC<AuthPageProps> = ({ isOpen, onClose }) => {
     setErrorMsg(null);
     try {
       if (mode === 'FORGOT_RESET') {
-        await forgotPasswordSendOtp(email.trim().toLowerCase());
+        const res = await forgotPasswordSendOtp(email.trim().toLowerCase());
         setSuccessMsg('A new password reset code has been sent to your Gmail.');
+        if (res.otp) {
+          setOtpDigits(res.otp.split('').slice(0, 6));
+        }
       } else {
-        await resendOtp(email.trim().toLowerCase());
+        const res = await resendOtp(email.trim().toLowerCase());
         setSuccessMsg('A fresh verification code has been dispatched.');
+        if (res.otp) {
+          setOtpDigits(res.otp.split('').slice(0, 6));
+        }
       }
       setResendTimer(60);
       setCanResend(false);

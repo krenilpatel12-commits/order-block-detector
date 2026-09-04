@@ -18,7 +18,10 @@ function createTransporter(user: string, pass: string): nodemailer.Transporter {
       auth: {
         user,
         pass
-      }
+      },
+      connectionTimeout: 8000,
+      greetingTimeout: 8000,
+      socketTimeout: 12000
     });
   }
 
@@ -31,7 +34,10 @@ function createTransporter(user: string, pass: string): nodemailer.Transporter {
     auth: {
       user,
       pass
-    }
+    },
+    connectionTimeout: 8000,
+    greetingTimeout: 8000,
+    socketTimeout: 12000
   });
 }
 
