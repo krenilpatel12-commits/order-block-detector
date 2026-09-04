@@ -1,0 +1,16 @@
+{
+  "name": "order-block-detector",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Order Block Detector - Global Institutional Trading Platform",
+  "scripts": {
+    "postinstall": "npm --prefix server install && npm --prefix client install",
+    "install:all": "npm --prefix server install && npm --prefix client install",
+    "build:server": "npm --prefix server run build",
+    "build:client": "npm --prefix client run build",
+    "build": "npm run build:server && npm run build:client",
+    "start": "node server/dist/index.js",
+    "server": "npm --prefix server start",
+    "client": "npm --prefix client run dev -- --host"
+  }
+}
