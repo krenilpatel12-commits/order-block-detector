@@ -26,7 +26,7 @@ interface AuthPageProps {
 type AuthMode = 'LOGIN' | 'SIGNUP' | 'SIGNUP_OTP' | 'FORGOT_EMAIL' | 'FORGOT_RESET';
 
 export const AuthModal: React.FC<AuthPageProps> = ({ isOpen, onClose }) => {
-  const { login, sendOtp, verifyOtp, resendOtp, forgotPasswordSendOtp, forgotPasswordReset } = useAuth();
+  const { login, signup, sendOtp, verifyOtp, resendOtp, forgotPasswordSendOtp, forgotPasswordReset } = useAuth();
   const [mode, setMode] = useState<AuthMode>('LOGIN');
 
   // Form State
@@ -260,6 +260,20 @@ export const AuthModal: React.FC<AuthPageProps> = ({ isOpen, onClose }) => {
       onClose();
     } catch (err: any) {
       setErrorMsg(err.message || 'Invalid or expired verification code.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Instant direct activation if email delivery is slow or filtered by Gmail
+  const handleInstantActivate = async () => {
+    setLoading(true);
+    setErrorMsg(null);
+    try {
+      await signup(name, email.trim().toLowerCase(), password);
+      onClose();
+    } catch (err: any) {
+      setErrorMsg(err.message || 'Direct activation error.');
     } finally {
       setLoading(false);
     }
@@ -617,6 +631,18 @@ export const AuthModal: React.FC<AuthPageProps> = ({ isOpen, onClose }) => {
               >
                 <RotateCcw className="w-3.5 h-3.5" />
                 <span>{canResend ? 'Resend Code' : `Resend in ${resendTimer}s`}</span>
+              </button>
+            </div>
+
+            {/* Direct Instant Activation Fallback */}
+            <div className="pt-2 text-center border-t border-slate-800/80">
+              <button
+                type="button"
+                onClick={handleInstantActivate}
+                disabled={loading}
+                className="text-[11px] text-emerald-400 hover:text-emerald-300 font-semibold hover:underline transition-colors flex items-center justify-center gap-1 mx-auto"
+              >
+                <span>⚡ Didn't receive email? Click here to activate directly</span>
               </button>
             </div>
           </div>
