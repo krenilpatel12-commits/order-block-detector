@@ -7,37 +7,20 @@ dotenv.config();
 // Defaults to Gmail SMTP if SMTP_USER and SMTP_PASS are provided in environment variables
 const smtpHost = process.env.SMTP_HOST || 'smtp.gmail.com';
 const smtpPort = parseInt(process.env.SMTP_PORT || '465', 10);
-const smtpUser = process.env.SMTP_USER || '';
-const smtpPass = process.env.SMTP_PASS || '';
-const smtpFrom = process.env.SMTP_FROM || `"Order Block Detector" <${smtpUser || 'no-reply@orderblock.com'}>`;
+const smtpUser = process.env.SMTP_USER || 'orderblockdetector@gmail.com';
+const smtpPass = (process.env.SMTP_PASS || 'ifdufnaxxqacomvx').replace(/\s+/g, '');
+const smtpFrom = process.env.SMTP_FROM || `"Order Block Detector" <${smtpUser}>`;
 
 function createTransporter(user: string, pass: string): nodemailer.Transporter {
-  if (user.endsWith('@gmail.com') || (process.env.SMTP_HOST || '').includes('gmail')) {
-    return nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user,
-        pass
-      },
-      connectionTimeout: 8000,
-      greetingTimeout: 8000,
-      socketTimeout: 12000
-    });
-  }
-
-  const host = process.env.SMTP_HOST || 'smtp.gmail.com';
-  const port = parseInt(process.env.SMTP_PORT || '587', 10);
   return nodemailer.createTransport({
-    host,
-    port,
-    secure: port === 465,
+    service: 'gmail',
     auth: {
-      user,
-      pass
+      user: user,
+      pass: pass
     },
-    connectionTimeout: 8000,
-    greetingTimeout: 8000,
-    socketTimeout: 12000
+    connectionTimeout: 10000,
+    greetingTimeout: 10000,
+    socketTimeout: 15000
   });
 }
 

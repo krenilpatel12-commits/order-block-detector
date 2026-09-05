@@ -122,11 +122,8 @@ export const AuthModal: React.FC<AuthPageProps> = ({ isOpen, onClose }) => {
         setMode('SIGNUP_OTP');
         setResendTimer(60);
         setCanResend(false);
+        setOtpDigits(['', '', '', '', '', '']);
         setSuccessMsg(`Verification code dispatched to ${cleanEmail}`);
-        if (res.otp) {
-          const digits = res.otp.split('').slice(0, 6);
-          setOtpDigits(digits);
-        }
         setTimeout(() => {
           inputRefs.current[0]?.focus();
         }, 100);
@@ -158,15 +155,11 @@ export const AuthModal: React.FC<AuthPageProps> = ({ isOpen, onClose }) => {
     setLoading(true);
 
     try {
-      const res = await forgotPasswordSendOtp(cleanEmail);
+      await forgotPasswordSendOtp(cleanEmail);
       setMode('FORGOT_RESET');
       setResendTimer(60);
       setCanResend(false);
-      if (res.otp) {
-        setOtpDigits(res.otp.split('').slice(0, 6));
-      } else {
-        setOtpDigits(['', '', '', '', '', '']);
-      }
+      setOtpDigits(['', '', '', '', '', '']);
       setNewPassword('');
       setSuccessMsg(`Password reset code sent to ${cleanEmail}`);
       setTimeout(() => {
@@ -279,18 +272,13 @@ export const AuthModal: React.FC<AuthPageProps> = ({ isOpen, onClose }) => {
     setErrorMsg(null);
     try {
       if (mode === 'FORGOT_RESET') {
-        const res = await forgotPasswordSendOtp(email.trim().toLowerCase());
+        await forgotPasswordSendOtp(email.trim().toLowerCase());
         setSuccessMsg('A new password reset code has been sent to your Gmail.');
-        if (res.otp) {
-          setOtpDigits(res.otp.split('').slice(0, 6));
-        }
       } else {
-        const res = await resendOtp(email.trim().toLowerCase());
+        await resendOtp(email.trim().toLowerCase());
         setSuccessMsg('A fresh verification code has been dispatched.');
-        if (res.otp) {
-          setOtpDigits(res.otp.split('').slice(0, 6));
-        }
       }
+      setOtpDigits(['', '', '', '', '', '']);
       setResendTimer(60);
       setCanResend(false);
     } catch (err: any) {

@@ -133,7 +133,6 @@ authRouter.post('/send-otp', async (req, res: Response) => {
     res.json({
       message: `Verification code sent to ${cleanEmail}. Please check your inbox or spam folder.`,
       email: cleanEmail,
-      otp: otpCode,
       expiresIn: 600
     });
   } catch (err: any) {
@@ -303,7 +302,6 @@ authRouter.post('/resend-otp', async (req, res: Response) => {
 
     res.json({
       message: `A new verification code was sent to ${cleanEmail}. Please check your inbox or spam folder.`,
-      otp: newOtp,
       expiresIn: 600
     });
   } catch (err: any) {
@@ -665,7 +663,6 @@ authRouter.post('/forgot-password/send-otp', async (req, res: Response) => {
     res.json({
       message: `Password reset code sent to ${cleanEmail}. Please check your inbox or spam folder.`,
       email: cleanEmail,
-      otp: otpCode,
       expiresIn: 600
     });
   } catch (err: any) {
