@@ -47,6 +47,8 @@ export async function sendMailDirect(options: SendMailOptions): Promise<{ succes
     const brevoApiKey = process.env.BREVO_API_KEY;
     if (brevoApiKey) {
       try {
+        const senderEmail = process.env.BREVO_SENDER_EMAIL || process.env.SMTP_USER || smtpUser || 'orderblockdetector@gmail.com';
+        const senderName = process.env.SENDER_NAME || 'Order Block Detector';
         const response = await fetch('https://api.brevo.com/v3/smtp/email', {
           method: 'POST',
           headers: {
@@ -55,7 +57,7 @@ export async function sendMailDirect(options: SendMailOptions): Promise<{ succes
             'Accept': 'application/json'
           },
           body: JSON.stringify({
-            sender: { name: 'Order Block Detector', email: process.env.SMTP_USER || smtpUser || 'orderblockdetector@gmail.com' },
+            sender: { name: senderName, email: senderEmail },
             to: [{ email: options.to }],
             subject: options.subject,
             htmlContent: options.html,
@@ -65,11 +67,11 @@ export async function sendMailDirect(options: SendMailOptions): Promise<{ succes
 
         if (response.ok) {
           const data: any = await response.json();
-          console.log(`✅ [EmailService - Brevo HTTPS] Email dispatched to ${options.to} (Message ID: ${data.messageId})`);
+          console.log(`✅ [EmailService - Brevo HTTPS] Email dispatched from ${senderEmail} to ${options.to} (Message ID: ${data.messageId})`);
           return { success: true, messageId: data.messageId };
         } else {
           const errText = await response.text();
-          console.warn(`⚠️ [EmailService - Brevo HTTPS] Response error:`, errText);
+          console.warn(`⚠️ [EmailService - Brevo HTTPS] Response error from ${senderEmail}:`, errText);
         }
       } catch (err: any) {
         console.warn(`⚠️ [EmailService - Brevo HTTPS] Network exception:`, err.message);
