@@ -190,6 +190,45 @@ function initSchema(db: Database): void {
     }
   }
 
+  // Seed Krenil's Master Account Owner directly
+  const krenilRes = db.exec("SELECT id FROM users WHERE email = 'krenilpatel12@gmail.com'");
+  if (!krenilRes.length || !krenilRes[0].values.length) {
+    const salt = bcrypt.genSaltSync(10);
+    const hash = bcrypt.hashSync('krenil12014', salt);
+    const now = new Date().toISOString();
+    db.run(
+      "INSERT INTO users (email, password_hash, name, role, is_owner, created_at) VALUES (?, ?, ?, ?, ?, ?)",
+      ['krenilpatel12@gmail.com', hash, 'Krenil Patel (Master Owner)', 'ADMIN', 1, now]
+    );
+
+    const krenilId = (db.exec("SELECT last_insert_rowid() as id")[0].values[0][0]) as number;
+    db.run(
+      `INSERT OR IGNORE INTO notification_preferences (user_id, alert_type_pref, daily_enabled, weekly_enabled, app_notifications_enabled, email_notifications_enabled, email_address)
+       VALUES (?, 'BOTH', 1, 1, 1, 1, ?)`,
+      [krenilId, 'krenilpatel12@gmail.com']
+    );
+
+    const defaultIndianWatchlist = [
+      { symbol: 'RELIANCE', name: 'Reliance Industries Ltd' },
+      { symbol: 'TCS', name: 'Tata Consultancy Services Ltd' },
+      { symbol: 'HDFCBANK', name: 'HDFC Bank Ltd' },
+      { symbol: 'INFY', name: 'Infosys Ltd' },
+      { symbol: 'TATAMOTORS', name: 'Tata Motors Ltd' }
+    ];
+
+    for (const item of defaultIndianWatchlist) {
+      db.run(
+        "INSERT OR IGNORE INTO watchlists (user_id, symbol, stock_name, created_at) VALUES (?, ?, ?, ?)",
+        [krenilId, item.symbol, item.name, now]
+      );
+    }
+  } else {
+    // If account already exists, update password to krenil12014 and guarantee ADMIN ownership
+    const salt = bcrypt.genSaltSync(10);
+    const hash = bcrypt.hashSync('krenil12014', salt);
+    db.run("UPDATE users SET password_hash = ?, role = 'ADMIN', is_owner = 1 WHERE email = 'krenilpatel12@gmail.com'", [hash]);
+  }
+
   // Seed Demo Trader User
   const demoRes = db.exec("SELECT id FROM users WHERE email = 'trader@orderblock.com'");
   if (!demoRes.length || !demoRes[0].values.length) {
